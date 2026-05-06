@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   RadarChart,
   PolarGrid,
@@ -593,9 +593,82 @@ function QuestionScreen({ question, index, total, currentAnswer, onAnswer, onBac
    RESULTS
    ============================================================ */
 
+async function exportDossierPDF(node, callsign) {
+  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+    import("html2canvas"),
+    import("jspdf"),
+  ]);
+  const canvas = await html2canvas(node, {
+    backgroundColor: C.bg,
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    windowWidth: node.scrollWidth,
+    windowHeight: node.scrollHeight,
+  });
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const margin = 8;
+  const maxW = pageW - margin * 2;
+  const maxH = pageH - margin * 2;
+  const ratio = canvas.width / canvas.height;
+  let w = maxW, h = maxW / ratio;
+  if (h > maxH) { h = maxH; w = maxH * ratio; }
+  const x = (pageW - w) / 2;
+  const y = (pageH - h) / 2;
+  pdf.setFillColor(11, 11, 13);
+  pdf.rect(0, 0, pageW, pageH, "F");
+  pdf.addImage(imgData, "PNG", x, y, w, h, undefined, "FAST");
+  const safeName = (callsign || "operator").replace(/[^a-z0-9]+/gi, "_").toLowerCase();
+  pdf.save(`newmode_loadout_${safeName}.pdf`);
+}
+
+function InstagramFooter() {
+  return (
+    <div
+      className="flex items-center justify-center gap-2 py-5"
+      style={{ fontFamily: F.mono, color: C.textMute }}
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        aria-hidden
+      >
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+      </svg>
+      <span className="text-xs tracking-[0.3em]" style={{ color: C.text, fontWeight: 600 }}>
+        @NEWMODEGG
+      </span>
+    </div>
+  );
+}
+
 function ResultsScreen({ payload, onRestart }) {
   const { dimensions, role_scores, winner_role, participant } = payload;
   const winner = ROLES[winner_role];
+  const dossierRef = useRef(null);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    if (!dossierRef.current || exporting) return;
+    setExporting(true);
+    try {
+      await exportDossierPDF(dossierRef.current, participant.name);
+    } catch (e) {
+      console.error("[newmode_loadout] pdf export failed:", e);
+      alert("Falha ao gerar PDF. Tente novamente.");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const radarData = Object.entries(DIMENSIONS).map(([key, meta]) => ({
     dim: meta.radarLabel,
@@ -617,6 +690,8 @@ function ResultsScreen({ payload, onRestart }) {
       <NoiseBg />
       <div className="max-w-md mx-auto">
         <HudHeader />
+
+        <div ref={dossierRef} style={{ background: C.bg }}>
 
         {/* dossier card */}
         <div
@@ -754,7 +829,7 @@ function ResultsScreen({ payload, onRestart }) {
         </div>
 
         {/* dimensões grid */}
-        <div className="mb-8 grid grid-cols-3 gap-2">
+        <div className="mb-6 grid grid-cols-3 gap-2">
           {Object.entries(DIMENSIONS).map(([key, meta]) => (
             <div
               key={key}
@@ -776,6 +851,27 @@ function ResultsScreen({ payload, onRestart }) {
             </div>
           ))}
         </div>
+
+        <InstagramFooter />
+
+        </div>
+
+        <button
+          onClick={handleExport}
+          disabled={exporting}
+          className="w-full py-4 font-bold tracking-[0.3em] mb-3"
+          style={{
+            fontFamily: F.mono,
+            background: "transparent",
+            color: C.primary,
+            border: `1px solid ${C.primary}`,
+            opacity: exporting ? 0.5 : 1,
+            cursor: exporting ? "wait" : "pointer",
+            ...cutCorners,
+          }}
+        >
+          {exporting ? "GENERATING..." : "EXPORT PDF ›››"}
+        </button>
 
         <button
           onClick={onRestart}
