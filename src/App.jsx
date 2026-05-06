@@ -15,12 +15,12 @@ import {
 } from "recharts";
 
 /* ============================================================
-   NEWMODE MIND — Perfilador Big Five + ACSI
+   NEWMODE LOADOUT — Perfilador Big Five + ACSI
    Paleta: Rainbow Six Siege
    ============================================================ */
 
 const BRAND = {
-  name: "NEWMODE MIND",
+  name: "NEWMODE LOADOUT",
   tagline: "PSYCHOLOGICAL PROFILE / ESPORTS",
 };
 
@@ -221,7 +221,7 @@ async function submitToBackend(payload) {
 
 function FontLoader() {
   useEffect(() => {
-    const id = "newmode-mind-fonts";
+    const id = "newmode-loadout-fonts";
     if (document.getElementById(id)) return;
     const link = document.createElement("link");
     link.id = id;

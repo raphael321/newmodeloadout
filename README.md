@@ -1,4 +1,4 @@
-# Newmode Mind
+# Newmode Loadout
 
 Perfilador psicológico Big Five + ACSI para esports.
 Descobre se o jogador é **FLEX**, **ENTRY**, **IGL** ou **ANCHOR**.
@@ -30,9 +30,9 @@ Para acessar pelo celular na mesma rede Wi-Fi (testar mobile):
    ```bash
    git init
    git add .
-   git commit -m "init: newmode mind"
+   git commit -m "init: newmode loadout"
    git branch -M main
-   git remote add origin git@github.com:SEU_USER/newmode-mind.git
+   git remote add origin git@github.com:SEU_USER/newmode-loadout.git
    git push -u origin main
    ```
 2. Acesse [vercel.com/new](https://vercel.com/new), conecte o GitHub e importe o repo.
@@ -64,7 +64,7 @@ Depois `vercel --prod` pra promover pro domínio principal.
 ## 📁 Estrutura
 
 ```
-newmode-mind/
+newmode-loadout/
 ├── src/
 │   ├── App.jsx        ← lógica completa do perfilador (1 arquivo)
 │   ├── main.jsx       ← entry React
@@ -117,7 +117,7 @@ No topo de `src/App.jsx`, altere:
 
 ```js
 const BRAND = {
-  name: "NEWMODE MIND",        // ← aqui
+  name: "NEWMODE LOADOUT",     // ← aqui
   tagline: "PSYCHOLOGICAL PROFILE / ESPORTS",
 };
 ```

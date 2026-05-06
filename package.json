@@ -1,6 +1,6 @@
 {
-  "name": "newmode-mind",
-  "description": "Perfilador psicológico Big Five + ACSI para esports — Newmode Mind",
+  "name": "newmode-loadout",
+  "description": "Perfilador psicológico Big Five + ACSI para esports — Newmode Loadout",
   "private": true,
   "version": "0.1.0",
   "type": "module",
