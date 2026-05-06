@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { supabase, hasSupabase } from "./lib/supabase";
 import {
   RadarChart,
   PolarGrid,
@@ -209,10 +210,37 @@ function clearState() { try { localStorage.removeItem(STORAGE_KEY); } catch (_) 
 
 /* ---- backend ---- */
 async function submitToBackend(payload) {
-  // TODO: Supabase RPC submit_assessment
-  await new Promise((r) => setTimeout(r, 400));
-  console.log("[newmode_mind] payload:", payload);
-  return { ok: true, payload };
+  if (!hasSupabase) {
+    // Sem env vars — modo offline (dev local sem .env)
+    await new Promise((r) => setTimeout(r, 200));
+    console.log("[newmode_loadout] OFFLINE payload:", payload);
+    return { ok: true, payload, offline: true };
+  }
+
+  const row = {
+    schema_version: payload.schema_version,
+    participant_id: payload.participant_id,
+    participant_name: payload.participant.name,
+    participant_phone: payload.participant.phone,
+    winner_role: payload.winner_role,
+    dimensions: payload.dimensions,
+    role_scores: payload.role_scores,
+    answers: payload.answers,
+    started_at: payload.timestamps.started_at,
+    completed_at: payload.timestamps.completed_at,
+  };
+
+  const { data, error } = await supabase
+    .from("assessments")
+    .insert(row)
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("[newmode_loadout] insert failed:", error);
+    return { ok: false, error: error.message, payload };
+  }
+  return { ok: true, payload, id: data.id };
 }
 
 /* ============================================================
