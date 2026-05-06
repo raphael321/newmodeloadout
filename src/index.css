@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background: #0b0b0d;
+  color: #f4f4f5;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+/* scrollbar discreto no tema dark */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a33;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6b00;
+}
+
+/* desabilita seleção em botões pra evitar highlight chato no mobile */
+button {
+  user-select: none;
+}
