@@ -531,87 +531,163 @@ function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume }) {
 }
 
 /* ============================================================
-   QUESTION
+   QUESTION LIST (todas as perguntas na mesma tela)
    ============================================================ */
 
-function QuestionScreen({ question, index, total, currentAnswer, onAnswer, onBack }) {
-  const dim = DIMENSIONS[question.dim];
+function ScaleRow({ value, onChange }) {
   return (
-    <div className="min-h-screen flex flex-col px-5 py-6">
-      <FontLoader />
-      <NoiseBg />
-      <div className="max-w-md mx-auto w-full flex-1 flex flex-col">
-        <HudHeader />
-        <ProgressBar current={index + 1} total={total} />
-
-        <div className="mt-10 flex-1 flex flex-col">
-          <div
-            className="text-[10px] tracking-[0.4em] mb-3 flex items-center gap-2"
-            style={{ fontFamily: F.mono, color: C.primary }}
-          >
-            <span>›</span> {dim.label.toUpperCase()}
-          </div>
-
-          <h2
-            className="uppercase leading-[0.95] mb-10"
+    <div className="flex gap-1.5">
+      {SCALE.map((s) => {
+        const selected = value === s.value;
+        return (
+          <button
+            key={s.value}
+            type="button"
+            onClick={() => onChange(s.value)}
+            aria-label={`${s.value} — ${s.label}`}
+            title={s.label}
+            className="flex-1 h-11 flex items-center justify-center font-bold text-base transition-all active:scale-95"
             style={{
-              fontFamily: F.display,
-              fontWeight: 700,
-              fontSize: "clamp(32px, 8vw, 50px)",
-              color: C.text,
+              fontFamily: F.mono,
+              background: selected ? C.primary : C.surface,
+              color: selected ? "#000" : C.textMute,
+              border: `1px solid ${selected ? C.primary : C.border}`,
             }}
           >
-            {question.text}
-          </h2>
+            {s.value}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
-          <div className="space-y-2 mb-8">
-            {SCALE.map((s) => {
-              const selected = currentAnswer === s.value;
-              return (
-                <button
-                  key={s.value}
-                  onClick={() => onAnswer(s.value)}
-                  className="w-full flex items-center gap-4 px-4 py-4 text-left transition-all active:scale-[0.99]"
-                  style={{
-                    fontFamily: F.body,
-                    background: selected ? "rgba(255,107,0,0.10)" : C.surface,
-                    border: `1px solid ${selected ? C.primary : C.border}`,
-                    color: selected ? C.text : C.textMute,
-                  }}
-                >
-                  <span
-                    className="w-11 h-11 flex items-center justify-center font-bold text-lg shrink-0"
-                    style={{
-                      fontFamily: F.mono,
-                      background: selected ? C.primary : "rgba(255,255,255,0.04)",
-                      color: selected ? "#000" : C.text,
-                    }}
-                  >
-                    {s.value}
-                  </span>
-                  <span className={selected ? "font-semibold" : ""}>{s.label}</span>
-                </button>
-              );
-            })}
-          </div>
+function QuestionListScreen({ answers, onAnswer, onSubmit, submitting }) {
+  // Agrupa perguntas por dimensao
+  const groups = Object.entries(DIMENSIONS).map(([key, meta]) => ({
+    key,
+    label: meta.label,
+    questions: QUESTIONS.filter((q) => q.dim === key),
+  }));
 
-          <div className="flex justify-between items-center mt-auto">
-            <button
-              onClick={onBack}
-              disabled={index === 0}
-              className="text-xs tracking-[0.3em] disabled:opacity-25 disabled:cursor-not-allowed"
-              style={{ fontFamily: F.mono, color: C.textMute }}
-            >
-              ‹‹‹ BACK
-            </button>
-            <span
-              className="text-[10px] tracking-[0.3em]"
-              style={{ fontFamily: F.mono, color: C.textDim }}
-            >
-              SCALE 1—5
-            </span>
-          </div>
+  const total = QUESTIONS.length;
+  const answered = QUESTIONS.filter((q) => typeof answers[q.id] === "number").length;
+  const complete = answered === total;
+
+  // Auto-scroll pra proxima pergunta nao respondida ao selecionar
+  const handlePick = (qId, value) => {
+    onAnswer(qId, value);
+    requestAnimationFrame(() => {
+      const idx = QUESTIONS.findIndex((q) => q.id === qId);
+      const nextUnansweredIdx = QUESTIONS.findIndex(
+        (q, i) => i > idx && typeof answers[q.id] !== "number" && q.id !== qId
+      );
+      if (nextUnansweredIdx >= 0) {
+        const el = document.getElementById(`q-${QUESTIONS[nextUnansweredIdx].id}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+  };
+
+  return (
+    <div className="min-h-screen px-5 py-6">
+      <FontLoader />
+      <NoiseBg />
+      <div className="max-w-md mx-auto">
+        <HudHeader />
+
+        {/* progresso sticky */}
+        <div
+          className="sticky top-0 z-20 -mx-5 px-5 py-3 mb-4"
+          style={{
+            background: `${C.bg}f2`,
+            borderBottom: `1px solid ${C.border}`,
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <ProgressBar current={answered} total={total} />
         </div>
+
+        {/* legenda da escala */}
+        <div
+          className="mb-6 p-3 text-[10px] tracking-[0.15em] flex justify-between"
+          style={{
+            fontFamily: F.mono,
+            color: C.textDim,
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+          }}
+        >
+          <span>1 = DISCORDO</span>
+          <span>3 = NEUTRO</span>
+          <span>5 = CONCORDO</span>
+        </div>
+
+        {/* grupos */}
+        <div className="space-y-8 mb-8">
+          {groups.map((g) => (
+            <section key={g.key}>
+              <div
+                className="text-[10px] tracking-[0.4em] mb-3 flex items-center gap-2"
+                style={{ fontFamily: F.mono, color: C.primary }}
+              >
+                <span>›</span> {g.label.toUpperCase()}
+              </div>
+              <div className="space-y-4">
+                {g.questions.map((q) => {
+                  const v = answers[q.id];
+                  const filled = typeof v === "number";
+                  return (
+                    <div
+                      key={q.id}
+                      id={`q-${q.id}`}
+                      className="p-4"
+                      style={{
+                        background: C.surface,
+                        border: `1px solid ${filled ? C.border : C.elevated}`,
+                      }}
+                    >
+                      <div
+                        className="text-sm mb-3 leading-snug"
+                        style={{
+                          fontFamily: F.body,
+                          color: filled ? C.text : C.textMute,
+                          fontWeight: filled ? 600 : 500,
+                        }}
+                      >
+                        {q.text}
+                      </div>
+                      <ScaleRow value={v} onChange={(val) => handlePick(q.id, val)} />
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
+
+        {/* botao submit */}
+        <button
+          onClick={onSubmit}
+          disabled={!complete || submitting}
+          className="w-full py-4 font-bold tracking-[0.3em]"
+          style={{
+            fontFamily: F.mono,
+            background: complete ? C.primary : C.elevated,
+            color: complete ? "#000" : C.textDim,
+            border: complete ? "none" : `1px solid ${C.border}`,
+            cursor: complete && !submitting ? "pointer" : "not-allowed",
+            opacity: submitting ? 0.6 : 1,
+            ...cutCorners,
+            boxShadow: complete ? `0 0 24px ${C.primary}55` : "none",
+          }}
+        >
+          {submitting
+            ? "PROCESSING..."
+            : complete
+            ? "GENERATE DOSSIER ›››"
+            : `${answered}/${total} ANSWERED`}
+        </button>
       </div>
     </div>
   );
@@ -983,18 +1059,15 @@ export default function App() {
 
   const handleDiscardResume = () => { clearState(); setHasResume(false); };
 
-  const handleAnswer = (value) => {
-    const q = QUESTIONS[currentIdx];
-    const next = { ...answers, [q.id]: value };
-    setAnswers(next);
-    if (currentIdx < QUESTIONS.length - 1) {
-      setTimeout(() => setCurrentIdx(currentIdx + 1), 180);
-    } else {
-      finalize(next);
-    }
+  const handleAnswer = (qId, value) => {
+    setAnswers((prev) => ({ ...prev, [qId]: value }));
   };
 
-  const handleBack = () => { if (currentIdx > 0) setCurrentIdx(currentIdx - 1); };
+  const handleSubmit = () => {
+    const all = QUESTIONS.every((q) => typeof answers[q.id] === "number");
+    if (!all) return;
+    finalize(answers);
+  };
 
   const finalize = async (finalAnswers) => {
     setStage("submitting");
@@ -1036,15 +1109,12 @@ export default function App() {
   }
 
   if (stage === "question") {
-    const q = QUESTIONS[currentIdx];
     return (
-      <QuestionScreen
-        question={q}
-        index={currentIdx}
-        total={QUESTIONS.length}
-        currentAnswer={answers[q.id]}
+      <QuestionListScreen
+        answers={answers}
         onAnswer={handleAnswer}
-        onBack={handleBack}
+        onSubmit={handleSubmit}
+        submitting={false}
       />
     );
   }
