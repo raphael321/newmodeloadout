@@ -29,18 +29,18 @@ const STORAGE_KEY = "newmode_mind_state_v1";
 
 /* ---- Paleta R6 ---- */
 const C = {
-  bg:        "#0B0B0D",
-  surface:   "#15151A",
-  elevated:  "#1F1F26",
-  border:    "#2A2A33",
-  primary:   "#FF6B00",   // laranja R6
-  primaryDk: "#CC4B00",
-  accent:    "#FFC107",   // amarelo HUD
-  danger:    "#E63946",   // vermelho ataque
-  defense:   "#4A9EFF",   // azul defesa
-  text:      "#F4F4F5",
-  textMute:  "#8A8A92",
-  textDim:   "#5A5A62",
+  bg:        "#0B1215",   // preto cinza
+  surface:   "#111B1F",
+  elevated:  "#18262C",
+  border:    "#20333B",
+  primary:   "#FF2400",   // laranja magma
+  primaryDk: "#D61E00",
+  accent:    "#FF5E4D",
+  danger:    "#FF2400",
+  defense:   "#2080E5",
+  text:      "#f6f6f6",   // cinza claro
+  textMute:  "#9EB2B9",
+  textDim:   "#5B767F",
 };
 
 /* ---- Dimensões ---- */
@@ -287,15 +287,15 @@ function FontLoader() {
     link.id = id;
     link.rel = "stylesheet";
     link.href =
-      "https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap";
+      "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap";
     document.head.appendChild(link);
   }, []);
   return null;
 }
 
 const F = {
-  display: "Saira Condensed, Impact, sans-serif",
-  body:    "Manrope, system-ui, sans-serif",
+  display: "Chakra Petch, sans-serif",
+  body:    "Chakra Petch, sans-serif",
   mono:    "JetBrains Mono, ui-monospace, monospace",
 };
 
@@ -311,8 +311,8 @@ function NoiseBg() {
         className="absolute inset-0"
         style={{
           background:
-            `radial-gradient(circle at 15% 0%, rgba(255,107,0,0.10), transparent 45%),
-             radial-gradient(circle at 85% 100%, rgba(74,158,255,0.07), transparent 45%)`,
+            `radial-gradient(circle at 15% 0%, rgba(255,36,0,0.08), transparent 45%),
+             radial-gradient(circle at 85% 100%, rgba(158,178,185,0.04), transparent 45%)`,
         }}
       />
       {/* scanline sutil */}
@@ -1017,14 +1017,14 @@ function getIconForTitle(title, color = "currentColor") {
 function RecruitHelmetIcon() {
   return (
     <svg viewBox="0 0 100 100" className="w-12 h-12 flex-shrink-0" fill="none">
-      <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" stroke="#3182CE" strokeWidth="4" fill="rgba(49, 130, 206, 0.15)" />
+      <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" stroke="#FF2400" strokeWidth="4" fill="rgba(255, 36, 0, 0.15)" />
       <path d="M50,22 C34,22 30,30 30,45 C30,48 31,52 33,55 L35,53 C34,50 33,47 33,45 C33,35 37,27 50,27 C63,27 67,35 67,45 C67,47 66,50 65,53 L67,55 C69,52 70,48 70,45 C70,30 66,22 50,22 Z" fill="#FFFFFF" />
       <path d="M34,44 C34,41 38,39 50,39 C62,39 66,41 66,44 C66,47 62,49 50,49 C38,49 34,47 34,44 Z" fill="#FFFFFF" />
-      <rect x="42" y="42" width="16" height="4" rx="1" fill="#121824" />
+      <rect x="42" y="42" width="16" height="4" rx="1" fill="#18262C" />
       <path d="M38,56 C38,68 44,74 50,74 C56,74 62,68 62,56 C57,59 53,60 50,60 C47,60 43,59 38,56 Z" fill="#FFFFFF" />
-      <circle cx="50" cy="67" r="2.5" fill="#121824" />
-      <rect x="44" y="62" width="2" height="4" fill="#121824" />
-      <rect x="54" y="62" width="2" height="4" fill="#121824" />
+      <circle cx="50" cy="67" r="2.5" fill="#18262C" />
+      <rect x="44" y="62" width="2" height="4" fill="#18262C" />
+      <rect x="54" y="62" width="2" height="4" fill="#18262C" />
     </svg>
   );
 }
@@ -1032,7 +1032,7 @@ function RecruitHelmetIcon() {
 async function exportDossierPNG(node, callsign) {
   const { default: html2canvas } = await import("html2canvas");
   const canvas = await html2canvas(node, {
-    backgroundColor: "#0A0D14",
+    backgroundColor: "#0B1215",
     scale: 3,
     useCORS: true,
     logging: false,
@@ -1052,7 +1052,7 @@ async function exportDossierPDF(node, callsign) {
     import("jspdf"),
   ]);
   const canvas = await html2canvas(node, {
-    backgroundColor: "#0A0D14",
+    backgroundColor: "#0B1215",
     scale: 2.5,
     useCORS: true,
     logging: false,
@@ -1070,7 +1070,7 @@ async function exportDossierPDF(node, callsign) {
   if (h > maxH) { h = maxH; w = maxH * ratio; }
   const x = (pageW - w) / 2;
   const y = (pageH - h) / 2;
-  pdf.setFillColor(10, 13, 20);
+  pdf.setFillColor(11, 18, 21);
   pdf.rect(0, 0, pageW, pageH, "F");
   pdf.addImage(imgData, "PNG", x, y, w, h, undefined, "FAST");
   const safeName = (callsign || "operator").replace(/[^a-z0-9]+/gi, "_").toLowerCase();
@@ -1137,41 +1137,41 @@ function ResultsScreen({ payload, onRestart }) {
         {/* Dossier Card Container (1000px wide for exact proportions) */}
         <div 
           ref={dossierRef} 
-          className="w-[1000px] bg-[#0A0D14] p-6 rounded-3xl border border-[#1e2638] flex flex-col gap-4 text-white relative select-none"
+          className="w-[1000px] bg-[#0B1215] p-6 rounded-3xl border border-[#20333B] flex flex-col gap-4 text-white relative select-none"
           style={{ fontFamily: F.body }}
         >
           {/* Top Row: Info & Parabens */}
           <div className="grid grid-cols-12 gap-4">
             
             {/* Top Left Box: Seu Perfil */}
-            <div className="col-span-6 bg-[#121824] p-5 rounded-2xl border border-[#1d2639] flex flex-col justify-between h-[220px]">
+            <div className="col-span-6 bg-[#18262C] p-5 rounded-2xl border border-[#20333B] flex flex-col justify-between h-[220px]">
               <div className="flex items-center gap-4">
                 <RecruitHelmetIcon />
                 <div className="flex flex-col">
                   <h2 className="text-xl font-bold tracking-wider text-white" style={{ fontFamily: F.display }}>
                     SEU PERFIL
                   </h2>
-                  <span className="text-[10px] text-[#3182CE] font-bold tracking-widest">
+                  <span className="text-[10px] text-[#FF2400] font-bold tracking-widest">
                     ANÁLISE DE FUNÇÕES – R6
                   </span>
                 </div>
               </div>
               
-              <div className="bg-[#0A0D14] p-4 rounded-xl border border-[#1e2638] mt-3 flex-1 flex flex-col justify-center">
-                <span className="text-[9px] text-[#718096] uppercase font-bold tracking-widest">
+              <div className="bg-[#0B1215] p-4 rounded-xl border border-[#20333B] mt-3 flex-1 flex flex-col justify-center">
+                <span className="text-[9px] text-[#9EB2B9] uppercase font-bold tracking-widest">
                   SUA FUNÇÃO
                 </span>
-                <span className="text-3xl font-extrabold text-[#3182CE] tracking-wider italic mt-0.5" style={{ fontFamily: F.display }}>
+                <span className="text-3xl font-extrabold text-[#FF2400] tracking-wider italic mt-0.5" style={{ fontFamily: F.display }}>
                   {customTexts.roleName}
                 </span>
-                <p className="text-[11px] text-[#A0AEC0] mt-1 leading-relaxed line-clamp-3">
+                <p className="text-[11px] text-[#9EB2B9] mt-1 leading-relaxed line-clamp-3">
                   {customTexts.description}
                 </p>
               </div>
             </div>
 
             {/* Top Right Box: Parabens */}
-            <div className="col-span-6 bg-[#121824] p-5 rounded-2xl border border-[#1d2639] flex flex-col h-[220px]">
+            <div className="col-span-6 bg-[#18262C] p-5 rounded-2xl border border-[#20333B] flex flex-col h-[220px]">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5 text-[#48BB78] fill-[#48BB78]" viewBox="0 0 24 24">
                   <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192z"/>
@@ -1185,7 +1185,7 @@ function ResultsScreen({ payload, onRestart }) {
                 <span className="text-base font-bold text-white leading-tight">
                   {customTexts.parabens}
                 </span>
-                <p className="text-[11px] text-[#A0AEC0] mt-2 leading-relaxed">
+                <p className="text-[11px] text-[#9EB2B9] mt-2 leading-relaxed">
                   {customTexts.parabens_desc}
                 </p>
               </div>
@@ -1197,9 +1197,9 @@ function ResultsScreen({ payload, onRestart }) {
           <div className="grid grid-cols-12 gap-4">
             
             {/* Middle Left: Radar Chart Box */}
-            <div className="col-span-7 bg-[#121824] p-5 rounded-2xl border border-[#1d2639] flex flex-col justify-between h-[420px]">
+            <div className="col-span-7 bg-[#18262C] p-5 rounded-2xl border border-[#20333B] flex flex-col justify-between h-[420px]">
               <div>
-                <h3 className="text-xs font-bold tracking-widest text-[#718096]">
+                <h3 className="text-xs font-bold tracking-widest text-[#9EB2B9]">
                   SEU DESEMPENHO POR FUNÇÃO
                 </h3>
               </div>
@@ -1207,23 +1207,23 @@ function ResultsScreen({ payload, onRestart }) {
               <div className="flex-1 w-full h-[320px] flex items-center justify-center mt-1">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart cx="50%" cy="50%" outerRadius="72%" data={radarData}>
-                    <PolarGrid stroke="#1e2638" strokeWidth={1} />
+                    <PolarGrid stroke="#20333B" strokeWidth={1} />
                     <PolarAngleAxis
                       dataKey="subject"
-                      tick={{ fill: "#A0AEC0", fontSize: 10, fontWeight: 700 }}
+                      tick={{ fill: "#9EB2B9", fontSize: 10, fontWeight: 700 }}
                     />
                     <PolarRadiusAxis
                       angle={90}
                       domain={[0, 8]}
-                      tick={{ fill: "#4A5568", fontSize: 8 }}
+                      tick={{ fill: "#5B767F", fontSize: 8 }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Radar
                       name="Score"
                       dataKey="value"
-                      stroke="#3182CE"
-                      fill="#3182CE"
+                      stroke="#FF2400"
+                      fill="#FF2400"
                       fillOpacity={0.25}
                       strokeWidth={2.5}
                     />
@@ -1232,8 +1232,8 @@ function ResultsScreen({ payload, onRestart }) {
               </div>
 
               {/* Legend */}
-              <div className="flex items-center justify-center gap-2 mt-2 text-[10px] text-[#A0AEC0] font-semibold">
-                <span className="w-5 h-1.5 bg-[#3182CE] rounded" />
+              <div className="flex items-center justify-center gap-2 mt-2 text-[10px] text-[#9EB2B9] font-semibold">
+                <span className="w-5 h-1.5 bg-[#FF2400] rounded" />
                 <span>Score</span>
               </div>
             </div>
@@ -1242,7 +1242,7 @@ function ResultsScreen({ payload, onRestart }) {
             <div className="col-span-5 flex flex-col gap-4 h-[420px]">
               
               {/* Upper Box: Strengths */}
-              <div className="bg-[#121824] p-4 rounded-2xl border border-[#1d2639] flex-1 flex flex-col overflow-hidden">
+              <div className="bg-[#18262C] p-4 rounded-2xl border border-[#20333B] flex-1 flex flex-col overflow-hidden">
                 <h3 className="text-xs font-bold text-[#48BB78] tracking-widest mb-3">
                   SEUS PONTOS FORTES
                 </h3>
@@ -1256,7 +1256,7 @@ function ResultsScreen({ payload, onRestart }) {
                         <span className="text-[11px] font-bold text-[#48BB78] leading-none">
                           {s.title}
                         </span>
-                        <p className="text-[10px] text-[#A0AEC0] mt-0.5 leading-snug">
+                        <p className="text-[10px] text-[#9EB2B9] mt-0.5 leading-snug">
                           {s.desc}
                         </p>
                       </div>
@@ -1266,7 +1266,7 @@ function ResultsScreen({ payload, onRestart }) {
               </div>
 
               {/* Lower Box: Points to Evolve */}
-              <div className="bg-[#121824] p-4 rounded-2xl border border-[#1d2639] flex-1 flex flex-col overflow-hidden">
+              <div className="bg-[#18262C] p-4 rounded-2xl border border-[#20333B] flex-1 flex flex-col overflow-hidden">
                 <h3 className="text-xs font-bold text-[#DD6B20] tracking-widest mb-3">
                   PONTOS DE ATENÇÃO
                 </h3>
@@ -1282,7 +1282,7 @@ function ResultsScreen({ payload, onRestart }) {
                         <span className="text-[11px] font-bold text-[#DD6B20] leading-none">
                           {e.title}
                         </span>
-                        <p className="text-[10px] text-[#A0AEC0] mt-0.5 leading-snug">
+                        <p className="text-[10px] text-[#9EB2B9] mt-0.5 leading-snug">
                           {e.desc}
                         </p>
                       </div>
@@ -1296,25 +1296,25 @@ function ResultsScreen({ payload, onRestart }) {
           </div>
 
           {/* Bottom Row: Resumo Geral & Score Geral */}
-          <div className="col-span-12 bg-[#121824] p-5 rounded-2xl border border-[#1d2639] flex justify-between items-center h-[120px]">
+          <div className="col-span-12 bg-[#18262C] p-5 rounded-2xl border border-[#20333B] flex justify-between items-center h-[120px]">
             
             {/* Left part: Resumo Geral */}
-            <div className="flex-1 pr-6 border-r border-[#1d2639] flex gap-3.5 items-center">
-              <svg className="w-10 h-10 text-[#3182CE] flex-shrink-0" fill="none" stroke="#3182CE" strokeWidth="2" viewBox="0 0 24 24">
+            <div className="flex-1 pr-6 border-r border-[#20333B] flex gap-3.5 items-center">
+              <svg className="w-10 h-10 text-[#FF2400] flex-shrink-0" fill="none" stroke="#FF2400" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
                 <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
                 <path d="M4 22h16" />
                 <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" />
-                <path d="M12 2a6 6 0 0 1 6 6v3c0 2.5-1.5 4.5-4 5.5h-4C7.5 15.5 6 13.5 6 11V8a6 6 0 0 1 6-6z" fill="rgba(49, 130, 206, 0.1)" />
+                <path d="M12 2a6 6 0 0 1 6 6v3c0 2.5-1.5 4.5-4 5.5h-4C7.5 15.5 6 13.5 6 11V8a6 6 0 0 1 6-6z" fill="rgba(255, 36, 0, 0.1)" />
               </svg>
               
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-[#3182CE] tracking-wider">
+                <span className="text-xs font-bold text-[#FF2400] tracking-wider">
                   RESUMO GERAL
                 </span>
-                <p className="text-[10.5px] text-[#A0AEC0] mt-1.5 leading-relaxed line-clamp-3">
+                <p className="text-[10.5px] text-[#9EB2B9] mt-1.5 leading-relaxed line-clamp-3">
                   {customTexts.final_message}{" "}
-                  <span className="text-[#3182CE] font-bold tracking-wider ml-1">
+                  <span className="text-[#FF2400] font-bold tracking-wider ml-1">
                     {customTexts.tagline}
                   </span>
                 </p>
@@ -1323,17 +1323,17 @@ function ResultsScreen({ payload, onRestart }) {
 
             {/* Right part: Score Geral */}
             <div className="w-[180px] pl-6 flex flex-col justify-center items-center">
-              <span className="text-[9px] text-[#718096] uppercase font-bold tracking-widest">
+              <span className="text-[9px] text-[#5B767F] uppercase font-bold tracking-widest">
                 SCORE GERAL
               </span>
-              <span className="text-4xl font-extrabold text-[#3182CE] tracking-tighter mt-1" style={{ fontFamily: F.display }}>
-                {generalScore} <span className="text-lg text-[#4A5568] font-bold">/100</span>
+              <span className="text-4xl font-extrabold text-[#FF2400] tracking-tighter mt-1" style={{ fontFamily: F.display }}>
+                {generalScore} <span className="text-lg text-[#5B767F] font-bold">/100</span>
               </span>
               
               {/* Small cyan bar underneath */}
-              <div className="w-20 h-1 bg-[#1e2638] rounded-full mt-2 overflow-hidden">
+              <div className="w-20 h-1 bg-[#20333B] rounded-full mt-2 overflow-hidden">
                 <div 
-                  className="h-full bg-[#3182CE] rounded-full" 
+                  className="h-full bg-[#FF2400] rounded-full" 
                   style={{ width: `${generalScore}%` }} 
                 />
               </div>
@@ -1352,22 +1352,41 @@ function ResultsScreen({ payload, onRestart }) {
 
       {/* Buttons to download or restart */}
       <div className="w-full max-w-md mt-6 flex flex-col gap-3">
-        <button
-          onClick={handleExportPNG}
-          disabled={exporting}
-          className="w-full py-4 font-bold tracking-[0.3em] mb-3"
-          style={{
-            fontFamily: F.mono,
-            background: "transparent",
-            color: C.primary,
-            border: `1px solid ${C.primary}`,
-            opacity: exporting ? 0.5 : 1,
-            cursor: exporting ? "wait" : "pointer",
-            ...cutCorners,
-          }}
-        >
-          {exporting ? "GENERATING..." : "EXPORT PDF ›››"}
-        </button>
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={handleExportPNG}
+            disabled={exporting}
+            className="flex-1 py-4 font-bold tracking-[0.2em] text-xs font-bold"
+            style={{
+              fontFamily: F.mono,
+              background: "transparent",
+              color: C.primary,
+              border: `1px solid ${C.primary}`,
+              opacity: exporting ? 0.5 : 1,
+              cursor: exporting ? "wait" : "pointer",
+              ...cutCorners,
+            }}
+          >
+            {exporting ? "GERANDO..." : "BAIXAR IMAGEM (PNG)"}
+          </button>
+
+          <button
+            onClick={handleExportPDF}
+            disabled={exportingPdf}
+            className="flex-1 py-4 font-bold tracking-[0.2em] text-xs font-bold"
+            style={{
+              fontFamily: F.mono,
+              background: "transparent",
+              color: C.primary,
+              border: `1px solid ${C.primary}`,
+              opacity: exportingPdf ? 0.5 : 1,
+              cursor: exportingPdf ? "wait" : "pointer",
+              ...cutCorners,
+            }}
+          >
+            {exportingPdf ? "GERANDO..." : "BAIXAR PDF"}
+          </button>
+        </div>
 
         <button
           onClick={onRestart}
@@ -1552,7 +1571,7 @@ function AdminScreen({ onBack }) {
                       <td className="p-3 text-[#A0AEC0]">{row.participant_age || "-"}</td>
                       <td className="p-3 text-[#A0AEC0]">{row.participant_gender || "-"}</td>
                       <td className="p-3 text-[#A0AEC0]">{row.participant_phone || "-"}</td>
-                      <td className="p-3 font-bold text-[#3182CE]">{row.winner_role}</td>
+                      <td className="p-3 font-bold text-[#FF2400]">{row.winner_role}</td>
                       <td className="p-3 font-bold text-white">{score}</td>
                       <td className="p-3 text-[#A0AEC0]">{date}</td>
                     </tr>

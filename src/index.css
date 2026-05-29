@@ -4,8 +4,9 @@
 
 html,
 body {
-  background: #0b0b0d;
-  color: #f4f4f5;
+  background: #0b1215;
+  color: #f6f6f6;
+  font-family: 'Chakra Petch', sans-serif;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
@@ -32,11 +33,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a33;
+  background: #20333b;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff6b00;
+  background: #ff2400;
 }
 
 /* desabilita seleção em botões pra evitar highlight chato no mobile */
