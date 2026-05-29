@@ -127,7 +127,32 @@ const ROLES = {
       d.pressao * 0.3 +
       (5 - d.neuroticismo) * 0.3,
   },
-};
+  ENTRY_2: {
+    code: "ENTRY_2",
+    title: "Entry 2",
+    formula: (d) =>
+      d.confianca * 0.3 +
+      d.pressao * 0.3 +
+      d.abertura * 0.2 +
+      d.adversidade * 0.2,
+  },
+  SUPPORT: {
+    code: "SUPPORT",
+    title: "Suporte",
+    formula: (d) =>
+      d.agradabilidade * 0.4 +
+      d.concentracao * 0.3 +
+      d.consciencia * 0.3,
+  },
+  ROAMER: {
+    code: "ROAMER",
+    title: "Roamer",
+    formula: (d) =>
+      d.abertura * 0.4 +
+      d.confianca * 0.3 +
+      d.pressao * 0.3,
+  },
+}
 
 const SCALE = [
   { value: 1, label: "Discordo totalmente" },
@@ -163,8 +188,14 @@ function computeRoles(d) {
 }
 
 function pickWinner(scores) {
+  const candidates = ["FLEX", "ENTRY", "IGL", "ANCHOR"];
   let win = null, max = -Infinity;
-  for (const [k, v] of Object.entries(scores)) if (v > max) { max = v; win = k; }
+  for (const k of candidates) {
+    if (scores[k] !== undefined && scores[k] > max) {
+      max = scores[k];
+      win = k;
+    }
+  }
   return win;
 }
 
@@ -686,8 +717,205 @@ function QuestionListScreen({ answers, onAnswer, onSubmit, submitting }) {
 }
 
 /* ============================================================
-   RESULTS
+   CUSTOM ROLE TEXTS & VISUALS (R6 STYLE)
    ============================================================ */
+
+const CUSTOM_ROLE_TEXTS = {
+  IGL: {
+    roleName: "IGL",
+    parabens: "Você parece ser um ótimo IGL!",
+    description: "Seu perfil demonstra fortes características de liderança e tomada de decisão, indicando grande potencial para atuar como IGL da equipe.",
+    parabens_desc: "Você apresenta capacidade de organização, comunicação e leitura de jogo, sendo capaz de direcionar o time mesmo em situações de pressão.",
+    strengths: [
+      { title: "Comunicação", desc: "Você consegue transmitir informações importantes e manter o time organizado." },
+      { title: "Leitura tática", desc: "Seu perfil mostra boa capacidade de entender o andamento da partida e adaptar estratégias." },
+      { title: "Controle emocional", desc: "Você mantém estabilidade mesmo em situações tensas." },
+      { title: "Tomada de decisão", desc: "Você demonstra capacidade para decidir rapidamente e assumir responsabilidade." },
+      { title: "Liderança", desc: "Seu comportamento tende a influenciar positivamente a equipe." }
+    ],
+    evolve: [
+      { title: "Excesso de pressão", desc: "Evite carregar sozinho toda responsabilidade da equipe." },
+      { title: "Clareza nas calls", desc: "Busque transmitir informações de forma ainda mais objetiva." },
+      { title: "Consistência emocional", desc: "Mesmo líderes precisam controlar frustração em momentos difíceis." }
+    ],
+    final_message: "Você possui perfil de liderança competitiva. Sua capacidade de organizar, comunicar e decidir pode transformar o desempenho coletivo da equipe. Continue evoluindo sua clareza, confiança e estabilidade emocional para se tornar uma referência dentro do servidor.",
+    tagline: "LIDERE. ORGANIZE. VENÇA. ESSE É O NEWMODE."
+  },
+  FLEX: {
+    roleName: "FLEX",
+    parabens: "Você parece ser um ótimo FLEX!",
+    description: "Jogadores Flex são adaptáveis, inteligentes e consistentes. Você se destaca em diferentes situações e funções dentro do time.",
+    parabens_desc: "Seu perfil mostra equilíbrio entre adaptação, tomada de decisão e controle emocional. Continue assim e você será peça-chave em qualquer lineup!",
+    strengths: [
+      { title: "Adaptabilidade", desc: "Você se adapta bem a diferentes funções e estratégias." },
+      { title: "Tomada de Decisão", desc: "Boa leitura de jogo e decisões consistentes." },
+      { title: "Controle Emocional", desc: "Mantém a calma e atua bem sob pressão." },
+      { title: "Trabalho em Equipe", desc: "Você consegue contribuir positivamente em diferentes funções." }
+    ],
+    evolve: [
+      { title: "Comunicação", desc: "Busque tornar suas calls ainda mais objetivas." },
+      { title: "Especialização", desc: "Desenvolver ainda mais uma função específica pode elevar sua performance." },
+      { title: "Confiança", desc: "Confiar mais nas suas decisões pode aumentar sua consistência." }
+    ],
+    final_message: "Seu perfil demonstra grande potencial competitivo. Sua capacidade de adaptação e estabilidade faz de você uma peça extremamente valiosa para qualquer lineup. Continue treinando seus pontos de atenção e você alcançará um nível ainda mais alto!",
+    tagline: "ADAPTE. EVOLUA. SUPERE. ESSE É O NEWMODE."
+  },
+  ENTRY: {
+    roleName: "ENTRY",
+    parabens: "Você parece ser um ótimo ENTRY!",
+    description: "Seu perfil demonstra características extremamente fortes para atuar como ENTRY dentro da equipe. Você apresenta confiança, iniciativa e coragem para assumir os primeiros confrontos.",
+    parabens_desc: "Você cria espaço e oportunidades para o time avançar. Jogadores dessa função costumam ditar o ritmo ofensivo e pressionar os adversários constantemente.",
+    strengths: [
+      { title: "Iniciativa", desc: "Você não hesita em agir e consegue assumir responsabilidade em momentos importantes da partida." },
+      { title: "Confiança", desc: "Seu perfil demonstra coragem para realizar jogadas agressivas e abrir espaço para a equipe." },
+      { title: "Decisão rápida", desc: "Você reage bem em situações intensas e consegue tomar decisões com velocidade." },
+      { title: "Pressão", desc: "Você tende a performar bem em rounds acelerados e momentos decisivos." },
+      { title: "Impacto ofensivo", desc: "Seu estilo cria oportunidades e força os adversários a reagirem constantemente." }
+    ],
+    evolve: [
+      { title: "Controle emocional", desc: "Evite deixar eliminações, erros ou rounds ruins influenciarem suas próximas decisões." },
+      { title: "Comunicação", desc: "Aprimorar suas calls durante entradas pode aumentar ainda mais a eficiência coletiva da equipe." },
+      { title: "Consistência", desc: "Buscar equilíbrio entre agressividade e inteligência tática pode elevar seu nível competitivo." },
+      { title: "Disciplina", desc: "Nem toda situação exige confronto imediato. Saber desacelerar também faz parte de um grande Entry." }
+    ],
+    final_message: "Você possui perfil de jogador agressivo, decisivo e impactante. Sua iniciativa e confiança podem mudar completamente o ritmo de uma partida e abrir caminho para o sucesso da equipe. Continue evoluindo sua comunicação, estabilidade emocional e leitura de jogo.",
+    tagline: "ENTRE. PRESSIONE. DOMINE. ESSE É O NEWMODE."
+  },
+  ANCHOR: {
+    roleName: "ANCHOR",
+    parabens: "Você parece ser um ótimo ANCHOR!",
+    description: "Seu perfil apresenta características ideais para atuar como ANCHOR. Você demonstra calma, concentração e estabilidade emocional, fundamentais para segurar posições.",
+    parabens_desc: "Você demonstra excelentes qualidades para segurar posições sob fogo cruzado, manter-se calmo em situações de desvantagem numérica e atuar bem sob pressão.",
+    strengths: [
+      { title: "Controle emocional", desc: "Você mantém a calma em momentos críticos." },
+      { title: "Concentração", desc: "Seu foco permanece estável durante partidas longas e difíceis." },
+      { title: "Decisão sob pressão", desc: "Você consegue pensar com clareza em situações importantes." },
+      { title: "Consistência", desc: "Você demonstra confiabilidade dentro do servidor." }
+    ],
+    evolve: [
+      { title: "Comunicação", desc: "Aprimorar suas informações pode aumentar ainda mais seu impacto defensivo." },
+      { title: "Iniciativa", desc: "Em alguns momentos, assumir mais protagonismo pode beneficiar a equipe." },
+      { title: "Confiança ofensiva", desc: "Trabalhar agressividade controlada pode tornar seu jogo mais completo." }
+    ],
+    final_message: "Você possui perfil extremamente confiável para momentos decisivos. Sua calma e estabilidade fazem diferença em rounds difíceis e situações de pressão. Continue evoluindo e mantendo sua consistência.",
+    tagline: "RESISTA. CONTROLE. DECIDA. ESSE É O NEWMODE."
+  }
+};
+
+function getIconForTitle(title, color = "currentColor") {
+  const t = title.toLowerCase();
+  if (t.includes("adaptabilidade")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2.5" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke={color} />
+        <circle cx="12" cy="12" r="6" stroke={color} />
+        <circle cx="12" cy="12" r="2" stroke={color} />
+      </svg>
+    );
+  }
+  if (t.includes("decisão") || t.includes("decidir") || t.includes("tomada")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364.364l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+    );
+  }
+  if (t.includes("controle emocional") || t.includes("consistência emocional") || t.includes("estabilidade") || t.includes("consistência")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2" />
+      </svg>
+    );
+  }
+  if (t.includes("comunicação") || t.includes("calls") || t.includes("clareza")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      </svg>
+    );
+  }
+  if (t.includes("leitura") || t.includes("tática")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      </svg>
+    );
+  }
+  if (t.includes("liderança")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.477 3.477 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.477 3.477 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.477 3.477 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.477 3.477 0 013.138-3.138z" />
+      </svg>
+    );
+  }
+  if (t.includes("trabalho") || t.includes("equipe")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    );
+  }
+  if (t.includes("iniciativa") || t.includes("pressão") || t.includes("disciplina")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    );
+  }
+  if (t.includes("concentração") || t.includes("foco")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      </svg>
+    );
+  }
+  if (t.includes("confiança")) {
+    return (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    );
+  }
+  return (
+    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke={color} strokeWidth="2" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    </svg>
+  );
+}
+
+function RecruitHelmetIcon() {
+  return (
+    <svg viewBox="0 0 100 100" className="w-12 h-12 flex-shrink-0" fill="none">
+      <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" stroke="#3182CE" strokeWidth="4" fill="rgba(49, 130, 206, 0.15)" />
+      <path d="M50,22 C34,22 30,30 30,45 C30,48 31,52 33,55 L35,53 C34,50 33,47 33,45 C33,35 37,27 50,27 C63,27 67,35 67,45 C67,47 66,50 65,53 L67,55 C69,52 70,48 70,45 C70,30 66,22 50,22 Z" fill="#FFFFFF" />
+      <path d="M34,44 C34,41 38,39 50,39 C62,39 66,41 66,44 C66,47 62,49 50,49 C38,49 34,47 34,44 Z" fill="#FFFFFF" />
+      <rect x="42" y="42" width="16" height="4" rx="1" fill="#121824" />
+      <path d="M38,56 C38,68 44,74 50,74 C56,74 62,68 62,56 C57,59 53,60 50,60 C47,60 43,59 38,56 Z" fill="#FFFFFF" />
+      <circle cx="50" cy="67" r="2.5" fill="#121824" />
+      <rect x="44" y="62" width="2" height="4" fill="#121824" />
+      <rect x="54" y="62" width="2" height="4" fill="#121824" />
+    </svg>
+  );
+}
+
+async function exportDossierPNG(node, callsign) {
+  const { default: html2canvas } = await import("html2canvas");
+  const canvas = await html2canvas(node, {
+    backgroundColor: "#0A0D14",
+    scale: 3,
+    useCORS: true,
+    logging: false,
+    windowWidth: 1000,
+  });
+  const imgData = canvas.toDataURL("image/png");
+  const link = document.createElement("a");
+  const safeName = (callsign || "operator").replace(/[^a-z0-9]+/gi, "_").toLowerCase();
+  link.download = `newmode_loadout_${safeName}.png`;
+  link.href = imgData;
+  link.click();
+}
 
 async function exportDossierPDF(node, callsign) {
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
@@ -695,12 +923,11 @@ async function exportDossierPDF(node, callsign) {
     import("jspdf"),
   ]);
   const canvas = await html2canvas(node, {
-    backgroundColor: C.bg,
-    scale: 2,
+    backgroundColor: "#0A0D14",
+    scale: 2.5,
     useCORS: true,
     logging: false,
-    windowWidth: node.scrollWidth,
-    windowHeight: node.scrollHeight,
+    windowWidth: 1000,
   });
   const imgData = canvas.toDataURL("image/png");
   const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
@@ -714,246 +941,290 @@ async function exportDossierPDF(node, callsign) {
   if (h > maxH) { h = maxH; w = maxH * ratio; }
   const x = (pageW - w) / 2;
   const y = (pageH - h) / 2;
-  pdf.setFillColor(11, 11, 13);
+  pdf.setFillColor(10, 13, 20);
   pdf.rect(0, 0, pageW, pageH, "F");
   pdf.addImage(imgData, "PNG", x, y, w, h, undefined, "FAST");
   const safeName = (callsign || "operator").replace(/[^a-z0-9]+/gi, "_").toLowerCase();
   pdf.save(`newmode_loadout_${safeName}.pdf`);
 }
 
-function InstagramFooter() {
-  return (
-    <div
-      className="flex items-center justify-center gap-2 py-5"
-      style={{ fontFamily: F.mono, color: C.textMute }}
-    >
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        aria-hidden
-      >
-        <rect x="3" y="3" width="18" height="18" rx="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-      </svg>
-      <span className="text-xs tracking-[0.3em]" style={{ color: C.text, fontWeight: 600 }}>
-        @NEWMODEGG
-      </span>
-    </div>
-  );
-}
-
 function ResultsScreen({ payload, onRestart }) {
-  const { dimensions, role_scores, winner_role, participant } = payload;
-  const winner = ROLES[winner_role];
+  const { role_scores, winner_role, participant } = payload;
   const dossierRef = useRef(null);
   const [exporting, setExporting] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
-  const handleExport = async () => {
+  const customTexts = CUSTOM_ROLE_TEXTS[winner_role] || CUSTOM_ROLE_TEXTS.FLEX;
+
+  // Calculate winner score out of 100
+  const rawWinnerScore = role_scores[winner_role] || 3.7;
+  const generalScore = Math.min(100, Math.max(10, Math.round(rawWinnerScore * 20)));
+
+  const handleExportPNG = async () => {
     if (!dossierRef.current || exporting) return;
     setExporting(true);
+    try {
+      await exportDossierPNG(dossierRef.current, participant.name);
+    } catch (e) {
+      console.error("[newmode_loadout] png export failed:", e);
+      alert("Falha ao gerar Imagem. Tente novamente.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (!dossierRef.current || exportingPdf) return;
+    setExportingPdf(true);
     try {
       await exportDossierPDF(dossierRef.current, participant.name);
     } catch (e) {
       console.error("[newmode_loadout] pdf export failed:", e);
       alert("Falha ao gerar PDF. Tente novamente.");
     } finally {
-      setExporting(false);
+      setExportingPdf(false);
     }
   };
 
-  const radarData = Object.entries(DIMENSIONS).map(([key, meta]) => ({
-    dim: meta.radarLabel,
-    value: meta.invert ? 5 - dimensions[key] : dimensions[key],
-  }));
-
-  const barData = Object.values(ROLES)
-    .map((r) => ({
-      code: r.code,
-      score: Number(role_scores[r.code].toFixed(2)),
-      color: r.color,
-      isWinner: r.code === winner_role,
-    }))
-    .sort((a, b) => b.score - a.score);
+  // Recharts radar data with 7 axes exactly like the user's reference image
+  const radarData = [
+    { subject: "Entry", value: Number(((role_scores.ENTRY || 3) * 1.6).toFixed(2)) },
+    { subject: "IGL", value: Number(((role_scores.IGL || 3) * 1.6).toFixed(2)) },
+    { subject: "Entry 2", value: Number(((role_scores.ENTRY_2 || 3) * 1.6).toFixed(2)) },
+    { subject: "Suporte", value: Number(((role_scores.SUPPORT || 3) * 1.6).toFixed(2)) },
+    { subject: "Flex", value: Number(((role_scores.FLEX || 3) * 1.6).toFixed(2)) },
+    { subject: "Anchor", value: Number(((role_scores.ANCHOR || 3) * 1.6).toFixed(2)) },
+    { subject: "Roamer", value: Number(((role_scores.ROAMER || 3) * 1.6).toFixed(2)) },
+  ];
 
   return (
-    <div className="min-h-screen px-5 py-6">
+    <div className="min-h-screen px-5 py-6 flex flex-col items-center">
       <FontLoader />
       <NoiseBg />
-      <div className="max-w-md mx-auto">
-        <HudHeader />
-
-        <div ref={dossierRef} style={{ background: C.bg }}>
-
-        {/* dossier card */}
-        <div
-          className="border p-5 mb-6"
-          style={{
-            ...cutCorners,
-            borderColor: winner.color,
-            background: `linear-gradient(135deg, ${winner.color}11, transparent 60%), ${C.surface}`,
-            boxShadow: `0 0 32px ${winner.color}22`,
-          }}
+      
+      {/* Outer wrapper to prevent layout distortion and allow horizontal scroll on mobile */}
+      <div className="w-full overflow-x-auto flex justify-center py-4">
+        
+        {/* Dossier Card Container (1000px wide for exact proportions) */}
+        <div 
+          ref={dossierRef} 
+          className="w-[1000px] bg-[#0A0D14] p-6 rounded-3xl border border-[#1e2638] flex flex-col gap-4 text-white relative select-none"
+          style={{ fontFamily: F.body }}
         >
-          <div
-            className="text-[10px] tracking-[0.4em] mb-2 flex items-center justify-between"
-            style={{ fontFamily: F.mono, color: winner.color }}
-          >
-            <span>› OPERATOR DOSSIER</span>
-            <span style={{ color: C.textDim }}>{winner.side}</span>
-          </div>
-          <div
-            className="text-sm mb-1"
-            style={{ fontFamily: F.body, color: C.textMute }}
-          >
-            CALLSIGN: <span style={{ color: C.text, fontWeight: 600 }}>{participant.name}</span>
-          </div>
-          <h1
-            className="leading-none uppercase my-3"
-            style={{
-              fontFamily: F.display,
-              fontWeight: 800,
-              fontSize: "clamp(72px, 22vw, 120px)",
-              color: winner.color,
-              letterSpacing: "-0.02em",
-              textShadow: `0 0 40px ${winner.color}66`,
-            }}
-          >
-            {winner.code}
-          </h1>
-          <div
-            className="text-base mb-3"
-            style={{ fontFamily: F.body, color: C.text, fontWeight: 600 }}
-          >
-            {winner.title}
-          </div>
-          <p
-            className="text-sm leading-relaxed"
-            style={{ fontFamily: F.body, color: C.textMute }}
-          >
-            {winner.desc}
-          </p>
-        </div>
+          {/* Top Row: Info & Parabens */}
+          <div className="grid grid-cols-12 gap-4">
+            
+            {/* Top Left Box: Seu Perfil */}
+            <div className="col-span-6 bg-[#121824] p-5 rounded-2xl border border-[#1d2639] flex flex-col justify-between h-[220px]">
+              <div className="flex items-center gap-4">
+                <RecruitHelmetIcon />
+                <div className="flex flex-col">
+                  <h2 className="text-xl font-bold tracking-wider text-white" style={{ fontFamily: F.display }}>
+                    SEU PERFIL
+                  </h2>
+                  <span className="text-[10px] text-[#3182CE] font-bold tracking-widest">
+                    ANÁLISE DE FUNÇÕES – R6
+                  </span>
+                </div>
+              </div>
+              
+              <div className="bg-[#0A0D14] p-4 rounded-xl border border-[#1e2638] mt-3 flex-1 flex flex-col justify-center">
+                <span className="text-[9px] text-[#718096] uppercase font-bold tracking-widest">
+                  SUA FUNÇÃO
+                </span>
+                <span className="text-3xl font-extrabold text-[#3182CE] tracking-wider italic mt-0.5" style={{ fontFamily: F.display }}>
+                  {customTexts.roleName}
+                </span>
+                <p className="text-[11px] text-[#A0AEC0] mt-1 leading-relaxed line-clamp-3">
+                  {customTexts.description}
+                </p>
+              </div>
+            </div>
 
-        {/* ranking */}
-        <div className="mb-8">
-          <div
-            className="text-[10px] tracking-[0.4em] mb-3"
-            style={{ fontFamily: F.mono, color: C.primary }}
-          >
-            › COMPATIBILITY RANKING
+            {/* Top Right Box: Parabens */}
+            <div className="col-span-6 bg-[#121824] p-5 rounded-2xl border border-[#1d2639] flex flex-col h-[220px]">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-[#48BB78] fill-[#48BB78]" viewBox="0 0 24 24">
+                  <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192z"/>
+                </svg>
+                <h3 className="text-sm font-bold text-[#48BB78] tracking-widest">
+                  PARABÉNS!
+                </h3>
+              </div>
+              
+              <div className="mt-3 flex-1 flex flex-col justify-center">
+                <span className="text-base font-bold text-white leading-tight">
+                  {customTexts.parabens}
+                </span>
+                <p className="text-[11px] text-[#A0AEC0] mt-2 leading-relaxed">
+                  {customTexts.parabens_desc}
+                </p>
+              </div>
+            </div>
+
           </div>
-          <div style={{ width: "100%", height: 200 }}>
-            <ResponsiveContainer>
-              <BarChart
-                data={barData}
-                layout="vertical"
-                margin={{ top: 4, right: 50, left: 0, bottom: 0 }}
-              >
-                <XAxis type="number" domain={[0, 5]} hide />
-                <YAxis
-                  type="category"
-                  dataKey="code"
-                  tick={{ fill: C.text, fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={70}
-                />
-                <Bar dataKey="score" barSize={26}>
-                  {barData.map((d, i) => (
-                    <Cell key={i} fill={d.color} fillOpacity={d.isWinner ? 1 : 0.3} />
+
+          {/* Middle Row: Radar Chart & Strengths/Weaknesses */}
+          <div className="grid grid-cols-12 gap-4">
+            
+            {/* Middle Left: Radar Chart Box */}
+            <div className="col-span-7 bg-[#121824] p-5 rounded-2xl border border-[#1d2639] flex flex-col justify-between h-[420px]">
+              <div>
+                <h3 className="text-xs font-bold tracking-widest text-[#718096]">
+                  SEU DESEMPENHO POR FUNÇÃO
+                </h3>
+              </div>
+              
+              <div className="flex-1 w-full h-[320px] flex items-center justify-center mt-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="72%" data={radarData}>
+                    <PolarGrid stroke="#1e2638" strokeWidth={1} />
+                    <PolarAngleAxis
+                      dataKey="subject"
+                      tick={{ fill: "#A0AEC0", fontSize: 10, fontWeight: 700 }}
+                    />
+                    <PolarRadiusAxis
+                      angle={90}
+                      domain={[0, 8]}
+                      tick={{ fill: "#4A5568", fontSize: 8 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Radar
+                      name="Score"
+                      dataKey="value"
+                      stroke="#3182CE"
+                      fill="#3182CE"
+                      fillOpacity={0.25}
+                      strokeWidth={2.5}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Legend */}
+              <div className="flex items-center justify-center gap-2 mt-2 text-[10px] text-[#A0AEC0] font-semibold">
+                <span className="w-5 h-1.5 bg-[#3182CE] rounded" />
+                <span>Score</span>
+              </div>
+            </div>
+
+            {/* Middle Right: Strengths & Evolve */}
+            <div className="col-span-5 flex flex-col gap-4 h-[420px]">
+              
+              {/* Upper Box: Strengths */}
+              <div className="bg-[#121824] p-4 rounded-2xl border border-[#1d2639] flex-1 flex flex-col overflow-hidden">
+                <h3 className="text-xs font-bold text-[#48BB78] tracking-widest mb-3">
+                  SEUS PONTOS FORTES
+                </h3>
+                <div className="space-y-3 flex-1 overflow-y-auto pr-1">
+                  {customTexts.strengths.map((s, idx) => (
+                    <div key={idx} className="flex gap-2.5 items-start">
+                      <div className="mt-0.5 text-[#48BB78]">
+                        {getIconForTitle(s.title, "#48BB78")}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-bold text-[#48BB78] leading-none">
+                          {s.title}
+                        </span>
+                        <p className="text-[10px] text-[#A0AEC0] mt-0.5 leading-snug">
+                          {s.desc}
+                        </p>
+                      </div>
+                    </div>
                   ))}
-                  <LabelList
-                    dataKey="score"
-                    position="right"
-                    style={{ fill: C.text, fontFamily: F.mono, fontSize: 12, fontWeight: 700 }}
-                    formatter={(v) => v.toFixed(2)}
-                  />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* radar */}
-        <div className="mb-6">
-          <div
-            className="text-[10px] tracking-[0.4em] mb-3"
-            style={{ fontFamily: F.mono, color: C.primary }}
-          >
-            › PSYCHOLOGICAL PROFILE
-          </div>
-          <div
-            className="border p-3"
-            style={{ borderColor: C.border, background: C.surface, ...cutCorners }}
-          >
-            <div style={{ width: "100%", height: 320 }}>
-              <ResponsiveContainer>
-                <RadarChart data={radarData} outerRadius="72%">
-                  <PolarGrid stroke={C.border} />
-                  <PolarAngleAxis
-                    dataKey="dim"
-                    tick={{ fill: C.text, fontFamily: F.mono, fontSize: 9, fontWeight: 600 }}
-                  />
-                  <PolarRadiusAxis
-                    angle={90}
-                    domain={[0, 5]}
-                    tick={{ fill: C.textDim, fontSize: 9 }}
-                    axisLine={false}
-                  />
-                  <Radar
-                    dataKey="value"
-                    stroke={winner.color}
-                    fill={winner.color}
-                    fillOpacity={0.35}
-                    strokeWidth={2}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-            <div
-              className="text-[9px] text-center mt-1 tracking-[0.2em]"
-              style={{ fontFamily: F.mono, color: C.textDim }}
-            >
-              * ESTABILIDADE = (5 − NEUROTICISMO)
-            </div>
-          </div>
-        </div>
-
-        {/* dimensões grid */}
-        <div className="mb-6 grid grid-cols-3 gap-2">
-          {Object.entries(DIMENSIONS).map(([key, meta]) => (
-            <div
-              key={key}
-              className="border p-2"
-              style={{ borderColor: C.border, background: C.surface }}
-            >
-              <div
-                className="text-[8px] tracking-[0.2em] mb-1 truncate"
-                style={{ fontFamily: F.mono, color: C.textMute }}
-              >
-                {meta.label.toUpperCase()}
+                </div>
               </div>
-              <div
-                className="text-xl"
-                style={{ fontFamily: F.mono, color: C.text, fontWeight: 700 }}
-              >
-                {dimensions[key].toFixed(2)}
+
+              {/* Lower Box: Points to Evolve */}
+              <div className="bg-[#121824] p-4 rounded-2xl border border-[#1d2639] flex-1 flex flex-col overflow-hidden">
+                <h3 className="text-xs font-bold text-[#DD6B20] tracking-widest mb-3">
+                  PONTOS DE ATENÇÃO
+                </h3>
+                <div className="space-y-3 flex-1 overflow-y-auto pr-1">
+                  {customTexts.evolve.map((e, idx) => (
+                    <div key={idx} className="flex gap-2.5 items-start">
+                      <div className="mt-0.5 text-[#DD6B20]">
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="#DD6B20" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-bold text-[#DD6B20] leading-none">
+                          {e.title}
+                        </span>
+                        <p className="text-[10px] text-[#A0AEC0] mt-0.5 leading-snug">
+                          {e.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* Bottom Row: Resumo Geral & Score Geral */}
+          <div className="col-span-12 bg-[#121824] p-5 rounded-2xl border border-[#1d2639] flex justify-between items-center h-[120px]">
+            
+            {/* Left part: Resumo Geral */}
+            <div className="flex-1 pr-6 border-r border-[#1d2639] flex gap-3.5 items-center">
+              <svg className="w-10 h-10 text-[#3182CE] flex-shrink-0" fill="none" stroke="#3182CE" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                <path d="M4 22h16" />
+                <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" />
+                <path d="M12 2a6 6 0 0 1 6 6v3c0 2.5-1.5 4.5-4 5.5h-4C7.5 15.5 6 13.5 6 11V8a6 6 0 0 1 6-6z" fill="rgba(49, 130, 206, 0.1)" />
+              </svg>
+              
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-[#3182CE] tracking-wider">
+                  RESUMO GERAL
+                </span>
+                <p className="text-[10.5px] text-[#A0AEC0] mt-1.5 leading-relaxed line-clamp-3">
+                  {customTexts.final_message}{" "}
+                  <span className="text-[#3182CE] font-bold tracking-wider ml-1">
+                    {customTexts.tagline}
+                  </span>
+                </p>
               </div>
             </div>
-          ))}
+
+            {/* Right part: Score Geral */}
+            <div className="w-[180px] pl-6 flex flex-col justify-center items-center">
+              <span className="text-[9px] text-[#718096] uppercase font-bold tracking-widest">
+                SCORE GERAL
+              </span>
+              <span className="text-4xl font-extrabold text-[#3182CE] tracking-tighter mt-1" style={{ fontFamily: F.display }}>
+                {generalScore} <span className="text-lg text-[#4A5568] font-bold">/100</span>
+              </span>
+              
+              {/* Small cyan bar underneath */}
+              <div className="w-20 h-1 bg-[#1e2638] rounded-full mt-2 overflow-hidden">
+                <div 
+                  className="h-full bg-[#3182CE] rounded-full" 
+                  style={{ width: `${generalScore}%` }} 
+                />
+              </div>
+            </div>
+
+          </div>
+
+          {/* Footer Line */}
+          <div className="text-center text-[9px] text-[#4A5568] tracking-wide mt-1.5">
+            Análise baseada em desempenho, tomada de decisão, comunicação, controle emocional e adaptação tática.
+          </div>
+
         </div>
 
-        <InstagramFooter />
+      </div>
 
-        </div>
-
+      {/* Buttons to download or restart */}
+      <div className="w-full max-w-md mt-6 flex flex-col gap-3">
         <button
-          onClick={handleExport}
+          onClick={handleExportPNG}
           disabled={exporting}
           className="w-full py-4 font-bold tracking-[0.3em] mb-3"
           style={{
