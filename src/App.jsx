@@ -203,7 +203,13 @@ function buildPayload({ participant, answers, dimensions, roleScores, winner }) 
   return {
     schema_version: 1,
     participant_id: participant.id,
-    participant: { name: participant.name, phone: participant.phone || null },
+    participant: {
+      name: participant.name,
+      phone: participant.phone || null,
+      age: participant.age || null,
+      gender: participant.gender || null,
+      email: participant.email || null,
+    },
     timestamps: {
       started_at: participant.started_at,
       completed_at: new Date().toISOString(),
@@ -245,6 +251,9 @@ async function submitToBackend(payload) {
     participant_id: payload.participant_id,
     participant_name: payload.participant.name,
     participant_phone: payload.participant.phone,
+    participant_age: payload.participant.age,
+    participant_gender: payload.participant.gender,
+    participant_email: payload.participant.email,
     winner_role: payload.winner_role,
     dimensions: payload.dimensions,
     role_scores: payload.role_scores,
@@ -382,8 +391,17 @@ function ProgressBar({ current, total }) {
 function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("");
+  const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
-  const valid = name.trim().length >= 2;
+
+  const validName = name.trim().length >= 2;
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const validAge = age.trim() !== "" && !isNaN(age) && Number(age) >= 5 && Number(age) <= 100;
+  const validGender = gender !== "";
+
+  const valid = validName && validAge && validGender && validEmail;
 
   return (
     <div className="min-h-screen flex flex-col px-5 py-6">
@@ -476,7 +494,7 @@ function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume }) {
               className="block text-[10px] tracking-[0.3em] mb-2"
               style={{ fontFamily: F.mono, color: C.textMute }}
             >
-              › CALLSIGN <span style={{ color: C.danger }}>*</span>
+              › CALLSIGN / NOME <span style={{ color: C.danger }}>*</span>
             </label>
             <input
               type="text"
@@ -489,12 +507,12 @@ function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume }) {
               style={{
                 fontFamily: F.body,
                 background: C.surface,
-                border: `1px solid ${touched && !valid ? C.danger : C.border}`,
+                border: `1px solid ${touched && !validName ? C.danger : C.border}`,
                 color: C.text,
               }}
               onFocus={(e) => (e.target.style.borderColor = C.primary)}
             />
-            {touched && !valid && (
+            {touched && !validName && (
               <p className="text-xs mt-1" style={{ color: C.danger, fontFamily: F.body }}>
                 Mínimo de 2 caracteres.
               </p>
@@ -506,24 +524,128 @@ function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume }) {
               className="block text-[10px] tracking-[0.3em] mb-2"
               style={{ fontFamily: F.mono, color: C.textMute }}
             >
-              › WHATSAPP <span style={{ color: C.textDim }}>(OPCIONAL)</span>
+              › E-MAIL <span style={{ color: C.danger }}>*</span>
             </label>
             <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/[^\d+()\-\s]/g, ""))}
-              placeholder="(85) 99999-9999"
-              maxLength={20}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => setTouched(true)}
+              placeholder="Ex: lucas@email.com"
+              maxLength={100}
               className="w-full px-4 py-3 outline-none"
               style={{
                 fontFamily: F.body,
                 background: C.surface,
-                border: `1px solid ${C.border}`,
+                border: `1px solid ${touched && !validEmail ? C.danger : C.border}`,
                 color: C.text,
               }}
               onFocus={(e) => (e.target.style.borderColor = C.primary)}
-              onBlur={(e) => (e.target.style.borderColor = C.border)}
             />
+            {touched && !validEmail && (
+              <p className="text-xs mt-1" style={{ color: C.danger, fontFamily: F.body }}>
+                E-mail inválido.
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-12 gap-3">
+            <div className="col-span-4">
+              <label
+                className="block text-[10px] tracking-[0.3em] mb-2"
+                style={{ fontFamily: F.mono, color: C.textMute }}
+              >
+                › IDADE <span style={{ color: C.danger }}>*</span>
+              </label>
+              <input
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                onBlur={() => setTouched(true)}
+                placeholder="Ex: 22"
+                min="5"
+                max="100"
+                className="w-full px-4 py-3 outline-none"
+                style={{
+                  fontFamily: F.body,
+                  background: C.surface,
+                  border: `1px solid ${touched && !validAge ? C.danger : C.border}`,
+                  color: C.text,
+                }}
+                onFocus={(e) => (e.target.style.borderColor = C.primary)}
+              />
+              {touched && !validAge && (
+                <p className="text-xs mt-1" style={{ color: C.danger, fontFamily: F.body }}>
+                  Idade inválida (5-100).
+                </p>
+              )}
+            </div>
+
+            <div className="col-span-8">
+              <label
+                className="block text-[10px] tracking-[0.3em] mb-2"
+                style={{ fontFamily: F.mono, color: C.textMute }}
+              >
+                › WHATSAPP <span style={{ color: C.textDim }}>(OPCIONAL)</span>
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/[^\d+()\-\s]/g, ""))}
+                placeholder="(85) 99999-9999"
+                maxLength={20}
+                className="w-full px-4 py-3 outline-none"
+                style={{
+                  fontFamily: F.body,
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                  color: C.text,
+                }}
+                onFocus={(e) => (e.target.style.borderColor = C.primary)}
+                onBlur={(e) => (e.target.style.borderColor = C.border)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              className="block text-[10px] tracking-[0.3em] mb-2"
+              style={{ fontFamily: F.mono, color: C.textMute }}
+            >
+              › SEXO <span style={{ color: C.danger }}>*</span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { value: "Masculino", label: "MASCULINO" },
+                { value: "Feminino", label: "FEMININO" },
+                { value: "Outro", label: "OUTRO" },
+                { value: "Prefiro nao dizer", label: "NÃO DECLARAR" },
+              ].map((opt) => {
+                const isSelected = gender === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setGender(opt.value)}
+                    className="py-3 px-2 text-[10px] font-bold tracking-widest border transition-all active:scale-[0.98]"
+                    style={{
+                      fontFamily: F.mono,
+                      background: isSelected ? C.primary : C.surface,
+                      color: isSelected ? "#000" : C.textMute,
+                      borderColor: isSelected ? C.primary : C.border,
+                      ...cutCorners,
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            {touched && !validGender && (
+              <p className="text-xs mt-1" style={{ color: C.danger, fontFamily: F.body }}>
+                Selecione uma opção.
+              </p>
+            )}
           </div>
         </div>
 
@@ -534,6 +656,9 @@ function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume }) {
               id: uuid(),
               name: name.trim(),
               phone: phone.trim(),
+              age: Number(age),
+              gender: gender,
+              email: email.trim(),
               started_at: new Date().toISOString(),
             })
           }
