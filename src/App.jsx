@@ -56,35 +56,27 @@ const DIMENSIONS = {
   adversidade:    { label: "Adversidade",     radarLabel: "ADVERSIDADE",    invert: false },
 };
 
-/* ---- 27 perguntas ---- */
+/* ---- 19 perguntas ---- */
 const QUESTIONS = [
-  { id: "ab1", dim: "abertura",       text: "Me adapto rápido" },
-  { id: "ab2", dim: "abertura",       text: "Busco soluções diferentes" },
-  { id: "ab3", dim: "abertura",       text: "Improviso bem" },
+  { id: "ab1", dim: "abertura",       text: "Busco soluções diferentes durante a partida" },
+  { id: "ab2", dim: "abertura",       text: "Improviso bem durante o game" },
   { id: "co1", dim: "consciencia",    text: "Sigo o plano do time" },
-  { id: "co2", dim: "consciencia",    text: "Presto atenção nos detalhes" },
-  { id: "co3", dim: "consciencia",    text: "Cumpro minha função" },
+  { id: "co2", dim: "consciencia",    text: "Cumpro minha função dentro do time" },
   { id: "ex1", dim: "extroversao",    text: "Me comunico bastante" },
-  { id: "ex2", dim: "extroversao",    text: "Tomo iniciativa" },
-  { id: "ex3", dim: "extroversao",    text: "Jogo de forma ativa" },
+  { id: "ex2", dim: "extroversao",    text: "Tomo iniciativa dentro do time" },
   { id: "ag1", dim: "agradabilidade", text: "Priorizo o time" },
   { id: "ag2", dim: "agradabilidade", text: "Escuto meus companheiros" },
-  { id: "ag3", dim: "agradabilidade", text: "Evito conflitos" },
-  { id: "ne1", dim: "neuroticismo",   text: "Fico nervoso fácil" },
+  { id: "ag3", dim: "agradabilidade", text: "Evito conflitos e tilts (estresse) da equipe" },
+  { id: "ne1", dim: "neuroticismo",   text: "Fico tiltado (nervoso) fácil" },
   { id: "ne2", dim: "neuroticismo",   text: "Me abalo com erros" },
-  { id: "ne3", dim: "neuroticismo",   text: "Perco o foco fácil" },
-  { id: "cf1", dim: "confianca",      text: "Confio nas decisões" },
-  { id: "cf2", dim: "confianca",      text: "Não hesito nas jogadas" },
-  { id: "cf3", dim: "confianca",      text: "Me sinto seguro jogando" },
-  { id: "cc1", dim: "concentracao",   text: "Mantenho foco por longo tempo" },
-  { id: "cc2", dim: "concentracao",   text: "Não me distraio fácil" },
-  { id: "cc3", dim: "concentracao",   text: "Ignoro distrações" },
-  { id: "pr1", dim: "pressao",        text: "Jogo bem sob pressão" },
-  { id: "pr2", dim: "pressao",        text: "Decido bem sob pressão" },
-  { id: "pr3", dim: "pressao",        text: "Rendo mais em jogos tensos" },
+  { id: "cf1", dim: "confianca",      text: "Confio nas calls (informações) passadas da equipe" },
+  { id: "cf2", dim: "confianca",      text: "Me sinto seguro jogando, não dou pinadas" },
+  { id: "cc1", dim: "concentracao",   text: "Não perco o foco em partidas demoradas" },
+  { id: "cc2", dim: "concentracao",   text: "Ignoro distrações durante o game" },
+  { id: "pr1", dim: "pressao",        text: "Não pipoco em decisão" },
+  { id: "pr2", dim: "pressao",        text: "Gosto de pressão, farmo aura" },
   { id: "ad1", dim: "adversidade",    text: "Continuo jogando bem mesmo quando estou perdendo" },
   { id: "ad2", dim: "adversidade",    text: "Consigo me recuperar rápido após erros" },
-  { id: "ad3", dim: "adversidade",    text: "Não desisto fácil em partidas difíceis" },
 ];
 
 /* ---- 4 funções (com identidade R6) ---- */
@@ -394,7 +386,7 @@ function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume }) {
             className="text-[15px] leading-relaxed"
             style={{ fontFamily: F.body, color: C.textMute }}
           >
-            27 perguntas rápidas. No final, identificamos seu papel:{" "}
+            {QUESTIONS.length} perguntas rápidas. No final, identificamos seu papel:{" "}
             <span style={{ color: C.primary, fontWeight: 700 }}>FLEX</span>,{" "}
             <span style={{ color: C.danger, fontWeight: 700 }}>ENTRY</span>,{" "}
             <span style={{ color: C.accent, fontWeight: 700 }}>IGL</span> ou{" "}
