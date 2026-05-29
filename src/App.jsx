@@ -327,13 +327,17 @@ function NoiseBg() {
   );
 }
 
-function HudHeader() {
+function HudHeader({ onAdminClick }) {
   return (
     <div
-      className="flex items-center justify-between border-b pb-3 mb-6"
+      className="flex items-center justify-between border-b pb-3 mb-6 select-none"
       style={{ borderColor: C.border, fontFamily: F.mono }}
     >
-      <div className="flex items-center gap-2 text-[10px] tracking-[0.3em]" style={{ color: C.primary }}>
+      <div 
+        className="flex items-center gap-2 text-[10px] tracking-[0.3em] cursor-pointer" 
+        style={{ color: C.primary }}
+        onClick={onAdminClick}
+      >
         <span className="inline-block w-2 h-2" style={{ background: C.primary }} />
         {BRAND.name}
       </div>
@@ -388,7 +392,7 @@ function ProgressBar({ current, total }) {
    WELCOME
    ============================================================ */
 
-function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume }) {
+function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume, onAdminClick }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [age, setAge] = useState("");
@@ -408,7 +412,7 @@ function WelcomeScreen({ onStart, hasResume, onResume, onDiscardResume }) {
       <FontLoader />
       <NoiseBg />
       <div className="w-full max-w-md mx-auto flex-1 flex flex-col">
-        <HudHeader />
+        <HudHeader onAdminClick={onAdminClick} />
 
         {/* hero */}
         <div className="mb-8">
@@ -1405,6 +1409,165 @@ function ResultsScreen({ payload, onRestart }) {
 }
 
 /* ============================================================
+   CSV EXPORT & ADMIN SCREEN
+   ============================================================ */
+
+function downloadCSV(data) {
+  const headers = [
+    "ID", "Nome", "E-mail", "Idade", "Sexo", "WhatsApp", 
+    "Funcao Ideal", "Score Geral", "Inicio", "Conclusao"
+  ];
+  
+  const csvRows = [headers.join(",")];
+  
+  for (const row of data) {
+    const values = [
+      row.id,
+      `"${(row.participant_name || "").replace(/"/g, '""')}"`,
+      `"${(row.participant_email || "").replace(/"/g, '""')}"`,
+      row.participant_age || "",
+      row.participant_gender || "",
+      `"${(row.participant_phone || "").replace(/"/g, '""')}"`,
+      row.winner_role,
+      row.role_scores && row.role_scores[row.winner_role] 
+        ? Math.round(row.role_scores[row.winner_role] * 20) 
+        : "",
+      row.started_at || "",
+      row.completed_at || ""
+    ];
+    csvRows.push(values.join(","));
+  }
+  
+  const csvContent = "\uFEFF" + csvRows.join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "newmode_loadout_results.csv");
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function AdminScreen({ onBack }) {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!hasSupabase) {
+        setError("Supabase não configurado. Exibindo dados locais ou mockados.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const { data: rows, error: err } = await supabase
+          .from("assessments")
+          .select("*")
+          .order("completed_at", { ascending: false });
+        if (err) throw err;
+        setData(rows || []);
+      } catch (e) {
+        setError(e.message || "Erro ao carregar dados");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleExport = () => {
+    if (data.length === 0) {
+      alert("Nenhum registro para exportar!");
+      return;
+    }
+    downloadCSV(data);
+  };
+
+  return (
+    <div className="min-h-screen px-5 py-6 flex flex-col">
+      <FontLoader />
+      <NoiseBg />
+      <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col">
+        <div className="flex items-center justify-between border-b pb-3 mb-6" style={{ borderColor: C.border, fontFamily: F.mono }}>
+          <div className="text-[10px] tracking-[0.3em]" style={{ color: C.primary }}>
+            [ ADMIN DASHBOARD ]
+          </div>
+          <button onClick={onBack} className="text-xs text-[#718096] hover:text-white" style={{ fontFamily: F.mono }}>
+            VOLTAR ›
+          </button>
+        </div>
+
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold tracking-wider" style={{ fontFamily: F.display }}>
+            RESULTADOS DOS JOGADORES ({data.length})
+          </h2>
+          <button
+            onClick={handleExport}
+            disabled={loading}
+            className="py-2.5 px-5 bg-[#38A169] text-black font-bold text-xs tracking-wider rounded-xl transition-all active:scale-[0.98] disabled:opacity-50"
+            style={{ fontFamily: F.mono }}
+          >
+            EXPORTAR CSV (EXCEL)
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="flex-1 flex items-center justify-center text-xs tracking-widest text-[#718096]" style={{ fontFamily: F.mono }}>
+            CARREGANDO DADOS...
+          </div>
+        ) : error && data.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed rounded-2xl" style={{ borderColor: C.border }}>
+            <span className="text-xs text-[#E63946] font-semibold" style={{ fontFamily: F.mono }}>{error}</span>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-x-auto border rounded-xl" style={{ borderColor: C.border, background: C.surface }}>
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b" style={{ borderColor: C.border, background: "#0A0D14" }}>
+                  <th className="p-3 font-semibold text-[#718096]" style={{ fontFamily: F.mono }}>JOGADOR</th>
+                  <th className="p-3 font-semibold text-[#718096]" style={{ fontFamily: F.mono }}>E-MAIL</th>
+                  <th className="p-3 font-semibold text-[#718096]" style={{ fontFamily: F.mono }}>IDADE</th>
+                  <th className="p-3 font-semibold text-[#718096]" style={{ fontFamily: F.mono }}>SEXO</th>
+                  <th className="p-3 font-semibold text-[#718096]" style={{ fontFamily: F.mono }}>WHATSAPP</th>
+                  <th className="p-3 font-semibold text-[#718096]" style={{ fontFamily: F.mono }}>FUNÇÃO</th>
+                  <th className="p-3 font-semibold text-[#718096]" style={{ fontFamily: F.mono }}>SCORE</th>
+                  <th className="p-3 font-semibold text-[#718096]" style={{ fontFamily: F.mono }}>DATA</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y" style={{ borderColor: C.border }}>
+                {data.map((row) => {
+                  const score = row.role_scores && row.role_scores[row.winner_role]
+                    ? Math.round(row.role_scores[row.winner_role] * 20)
+                    : "-";
+                  const date = row.completed_at 
+                    ? new Date(row.completed_at).toLocaleDateString("pt-BR")
+                    : "-";
+                  return (
+                    <tr key={row.id} className="hover:bg-[#1A2233]">
+                      <td className="p-3 font-bold text-white">{row.participant_name}</td>
+                      <td className="p-3 text-[#A0AEC0]">{row.participant_email || "-"}</td>
+                      <td className="p-3 text-[#A0AEC0]">{row.participant_age || "-"}</td>
+                      <td className="p-3 text-[#A0AEC0]">{row.participant_gender || "-"}</td>
+                      <td className="p-3 text-[#A0AEC0]">{row.participant_phone || "-"}</td>
+                      <td className="p-3 font-bold text-[#3182CE]">{row.winner_role}</td>
+                      <td className="p-3 font-bold text-white">{score}</td>
+                      <td className="p-3 text-[#A0AEC0]">{date}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    APP
    ============================================================ */
 
@@ -1420,6 +1583,12 @@ export default function App() {
   useEffect(() => {
     const saved = loadState();
     if (saved && saved.stage === "question" && saved.participant) setHasResume(true);
+    
+    // Check if URL has ?admin=true
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("admin") === "true") {
+      setStage("admin");
+    }
   }, []);
 
   useEffect(() => {
@@ -1485,6 +1654,15 @@ export default function App() {
     setStage("welcome");
   };
 
+  const handleAdminClick = () => {
+    const pwd = prompt("Digite a senha de administrador:");
+    if (pwd === "newmodeadmin123" || pwd === "admin") {
+      setStage("admin");
+    } else if (pwd !== null) {
+      alert("Senha incorreta!");
+    }
+  };
+
   if (stage === "welcome") {
     return (
       <WelcomeScreen
@@ -1492,8 +1670,13 @@ export default function App() {
         hasResume={hasResume}
         onResume={handleResume}
         onDiscardResume={handleDiscardResume}
+        onAdminClick={handleAdminClick}
       />
     );
+  }
+
+  if (stage === "admin") {
+    return <AdminScreen onBack={() => setStage("welcome")} />;
   }
 
   if (stage === "question") {
